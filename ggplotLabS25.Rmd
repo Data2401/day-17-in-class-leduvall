@@ -26,38 +26,56 @@ This data is the heights of humans, divided by their biological sex.
 Use ggplot to make a histogram of all of the heights:
 
 ```{r}
-
+ggplot(heights, aes(x=height)) + 
+  geom_histogram()
 
 ```
 
 Change up the binwidth and see how the plots change. Try 1, 5, 10, and 20
 
 ```{r}
+ggplot(heights, aes(x=height)) + 
+  geom_histogram(binwidth = 1)
 
+ggplot(heights, aes(x=height)) + 
+  geom_histogram(binwidth = 5)
+
+ggplot(heights, aes(x=height)) + 
+  geom_histogram(binwidth = 10)
+
+ggplot(heights, aes(x=height)) + 
+  geom_histogram(binwidth = 20)
 ```
 
 Smooth this out to an emperical density with `geom_density()`
 
 ```{r}
+ggplot(heights, aes(x=height)) + 
+  geom_histogram() + 
+  geom_density()
 
 ```
 
 Use a new argument in the `aes()`, `group =` to split this density by sex
 
 ```{r}
-
+ggplot(heights, aes(x=height, group=sex)) + 
+  geom_histogram() 
 ```
 
 OR we can do it with `color` or `fill.` If you say you want to color by sex, R knows that you want a different curve for each of them.
 
 ```{r}
-
+ggplot(heights, aes(x=height, fill = sex)) + 
+  geom_histogram() 
 
 ```
 
 If you've used fill, then there is now a slight issue that they are overlapped. We can fix this with alpha transparency!
 
 ```{r}
+ggplot(heights, aes(x=height, fill = sex)) + 
+  geom_histogram(alpha=(3/4))
 
 
 ```
@@ -65,7 +83,8 @@ If you've used fill, then there is now a slight issue that they are overlapped. 
 Let's make some boxplots of the same information.
 
 ```{r}
-
+ggplot(heights) +
+  geom_boxplot(aes(x= height, y = sex))
 ```
 
 ## Quantatitive summaries:  
@@ -73,20 +92,25 @@ Let's make some boxplots of the same information.
 Find the mean and median overall. 
 
 ```{r}
-
+heights %>% 
+  summarize(avg_height= mean(height), med_height=median(height))
 ```
+
 
 Find the mean and median for both groups. 
 
 ```{r}
-
+heights %>% group_by(sex) %>% 
+  summarize(avg_height= mean(height), med_height=median(height))
 
 ```
 
 How tall is the tallest woman? How short is the shortest man? 
 
 ```{R}
+heights %>% group_by(sex) %>% filter(sex=='Female') %>% arrange(-height)
 
+heights %>% group_by(sex) %>% filter(sex=='Male') %>% arrange(height)
 
 ```
 
@@ -107,7 +131,8 @@ Let's look at the democratic vote by state for 2000. We can't use `geom_bar` for
 Make a bar graph of the democratic vote by state in 2000. 
 
 ```{r}
-
+ggplot(votedata %>% filter(year==2000), aes(x=state, y= demVote)) +
+  geom_col()
 
 
 ```
@@ -118,7 +143,9 @@ Use `coord_flip()` on the previous graph to make it better.
 
 ```{r fig.height=7, fig.width=5}
 
-
+ggplot(votedata %>% filter(year==2000), aes(x=state, y= demVote)) +
+  geom_col() +
+  coord_flip()
 
 ```
 
@@ -127,26 +154,27 @@ I don't love the squashed together coordinates, but it's a display window issue.
 So. This is a helpful graph, but it would be *more* helpful if it was ordered. 
 Use `x = reorder(x_variable, y_variable)` in `aes()` to order the x variable by the y variable
 
-```{r}
+```{r fig.height=7, fig.width=5}
 
-
-
+ggplot(votedata %>% filter(year==2000), aes(x=reorder(state, demVote), y=demVote)) +
+  geom_col()+ coord_flip()
 ```
 
-So, what if I want to see what the north and south states did different?
+So, what if I coord_flip()So, what if I want to see what the north and south states did different?
 
 start with a facet_wrap using the `south` variable:
 
-```{r}
-
+```{r fig.height=7, fig.width=5 }
+ggplot(votedata %>% filter(year==2000), aes(x=reorder(state, demVote), y=demVote)) +
+  geom_col()+ coord_flip() + facet_wrap(~south)
 
 ```
 
 Okay, that's not great. Lets *color* by south instead.
 
 ```{r}
-
-
+ggplot(votedata %>% filter(year==2000), aes(x=reorder(state, demVote), y=demVote, color=south)) +
+  geom_col()+ coord_flip() + facet_wrap(~south)
 ```
 
 I'm a good data scientist, so I want my plot to have a name! and my axes to have lables! Use `labs` to add a title, subtitle, and x and y labels.
